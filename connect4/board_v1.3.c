@@ -1,3 +1,11 @@
+///
+///
+/// adding new functions to clear the main function. 
+/// FAILED, THINGS DID NOT GO WELL AND I CREATED V2.0
+/// WHEN CHARACTER ENTERED DOES NOT GIVE RIGHT ERROR
+///
+///
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -7,13 +15,17 @@
 #define PL2 8
 
 
+
 void print_board(int boardArr[ROWS][COLS]);                      // prints the board with tabs and other stuff to terminal  
-int make_move(int boardArr[ROWS][COLS], int player, int col);    //returns 0 if error, returns 1 if succesful 
+int make_move(int boardArr[ROWS][COLS], int player, int col);    // returns 0 if error, returns 1 if succesful 
 int check_input_range(int boardArr[ROWS][COLS], int col);        // to check the if the input is in range of game board
-int check_col(int boardArr[ROWS][COLS], int col);                //check if the column is empty
+int check_col(int boardArr[ROWS][COLS], int col);                // check if the column is empty
 int valid_move_left(int boardArr[ROWS][COLS]);                   // if valid move left returns 1, otherwise 0
 int check_counter(int counter);                                  // returns 1 if pl1 wins, returns 2 if pl2 wins, if there isn't any winning situation returns 0
 int check_winner(int boardArr[ROWS][COLS]);                      // calculates and creates counter variable gives it to check_counter function
+
+void take_input(int* selected_col, int* player);                 // 
+void declare_winner(int check_winner, int boardArr[ROWS][COLS]);
 
 
 int main()
@@ -23,32 +35,36 @@ int main()
     int turn = 0;
     int player;
     int selected_col;
-    int match_result = 0; // 1 if player 1 won, 2 if player 2 is won, 0 is indicates that there isn't winning situation
+    int match_result = 0;
 
     do
     {
         print_board(boardObj);
         
-        printf("turn:%d", turn);
+        // deciding whose turn
+        printf("turn:%d \t", turn);
         if (turn % 2 == 0)   {player = PL1;}
         else                 {player = PL2;}
 
-        printf("player with number %d, select your move\n", player);
-        scanf("%d", &selected_col);
+        // take the user input, check if it is integer
+        take_input(&selected_col, &player); 
 
-        if (make_move(boardObj, player, selected_col) == 1 ) {turn++;};
+        // this clears the screen 
+        // we clear the terminal here because error printing is done by make_move func
+        // BUT ALSO CLEARS THE ERROR PRODUCED BY TAKE INPUT
+        printf("\033[2J"); 
 
-        match_result = check_winner(boardObj); // zero of match_result is meaning to continue; not draw
-
-        switch (match_result)
+        // make_move return 1 if move made, and zero if the input is not 
+        if (make_move(boardObj, player, selected_col) == 1 ) 
         {
-            case 1:
-                printf("player 1 won");
-                break;
-            case 2:
-                printf("player 2 won");
-                break;
-        }
+            turn++;
+        };
+
+        // check input returns: player1 wins -> 1 ; player2 wins -> 2; no-winning -> 0
+        match_result = check_winner(boardObj);
+        // prints the relevant message if there is winner 
+        declare_winner(match_result, boardObj);
+
 
     }while(valid_move_left(boardObj) == 1 && match_result != 1 && match_result != 2);
 
@@ -66,10 +82,21 @@ void print_board(int boardArr[ROWS][COLS])
     printf("\n----- this is the current situation in board ----- \n\n"); //for clear terminal view
     for (int i=0; i<ROWS; i++)
     {
-        printf("\t"); //for clear terminal view 
+        printf("\t\t"); //for clear terminal view 
         for(int j=0; j<COLS; j++)
         {
-            printf("%d ", boardArr[i][j]);
+            switch (boardArr[i][j])
+            {
+            case 1:
+                printf("X ");
+                break;
+            case 8:
+                printf("O ");
+                break;
+            case 0:
+                printf("- ");
+                break;                
+            }
         }
         printf("\n");
     }
@@ -173,6 +200,7 @@ int check_counter(int counter)
 int check_winner(int boardArr[ROWS][COLS])
 {
     int counter = 0;
+
     //horizontal
     int boardLine[COLS] = {};
 
@@ -191,6 +219,12 @@ int check_winner(int boardArr[ROWS][COLS])
             }
         }
     } 
+
+    for(int i = 0; i< COLS; i++){
+        boardLine[i] = 0;
+    }
+
+
     //vertical 
     for (int i=0; i<COLS; i++)
     {
@@ -213,7 +247,7 @@ int check_winner(int boardArr[ROWS][COLS])
     int boardDiagolLine[4] = {};
     for (int i = 3; i <= ROWS - 1; i++)
     {
-        for (int j = 0; j < ROWS - 4; j++)
+        for (int j = 0; j < COLS - 3; j++)
         {
             boardDiagolLine[0] = boardArr[i  ][j  ];
             boardDiagolLine[1] = boardArr[i-1][j+1];
@@ -250,5 +284,44 @@ int check_winner(int boardArr[ROWS][COLS])
                 return check_counter(counter);
             }
         }            
+    }
+
+    if (check_counter(counter) != 1 && check_counter(counter) != 2)
+    {
+        return 0;
+    }
+
+}
+
+
+void take_input(int* p_selected_col, int* p_player)
+{
+    printf("player with number %d, select your move\n", *p_player);
+    
+    int check_if_int = scanf("%d", p_selected_col); 
+       
+        if(check_if_int != 1)
+        {
+            printf("\033[2J"); // this clears the screen
+            printf("Error: input is not integer");
+            fflush(stdin);
+        }
+}
+
+
+void declare_winner(int check_winner, int boardArr[ROWS][COLS])
+{
+    switch (check_winner)
+    {
+        case 1:
+            printf("\033[2J"); // this clears the screen 
+            print_board(boardArr);
+            printf("player 1 won");
+            break;
+        case 2:
+            printf("\033[2J"); // this clears the screen 
+            print_board(boardArr);
+            printf("player 2 won");
+            break;
     }
 }
