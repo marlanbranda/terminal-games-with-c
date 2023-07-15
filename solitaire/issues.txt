@@ -1,0 +1,3 @@
+now while we are creating nodes via function createCardNode first card gets 
+false-null value which other functions doesn't understand and despite not
+raising error it doesn't work properly. I need to refactor too much code :)

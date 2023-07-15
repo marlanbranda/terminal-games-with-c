@@ -56,3 +56,11 @@ dkms.conf
 #vscode 
 .vscode/
 .vscode/*
+
+#PDCurses
+PDCurses/*
+PDCurses
+
+#new modularization scheme
+solitaire/chat-gpt-modularization
+solitaire/chat-gpt-modularization/*
